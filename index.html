@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#e6eaf0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f131a" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-title" content="Know Your Shit">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Know Your Shit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* One narrow column on a blotter-blue desk; pages are index cards with a red top rule. */
+:root {
+  --desk: #e6eaf0; --card: #fefefc; --ink: #1b2230; --ink-2: #4a5466; --ink-3: #6e788a; --line: #cdd5e0;
+  --accent: #1f4f8f; --accent-ink: #ffffff; --accent-soft: #dce6f4; --rule-red: #cc3d48; --mark: #fff0a8;
+  --shadow: 0 1px 2px rgba(20, 30, 50, 0.07), 0 6px 18px rgba(20, 30, 50, 0.08);
+  --f-display: "Grenze Gotisch", Georgia, serif;
+  --f-ui: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --desk: #0f131a; --card: #1a202a; --ink: #e7eaf0; --ink-2: #b3bbca; --ink-3: #8a94a6; --line: #2b3341;
+    --accent: #91b5ee; --accent-ink: #0c1320; --accent-soft: #1e2b42; --rule-red: #e0636d; --mark: #5a4a12;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 8px 22px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--desk); color: var(--ink); font: 17px/1.5 var(--f-ui); min-height: 100vh; }
+#app { max-width: 560px; margin: 0 auto; padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px calc(env(safe-area-inset-bottom, 0px) + 32px); }
+a { color: inherit; -webkit-tap-highlight-color: transparent; }
+button { -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+
+.wordmark { font-family: var(--f-display); font-weight: 600; font-size: 42px; line-height: 1; letter-spacing: 0.01em; }
+.home-head { padding: 22px 2px 14px; border-bottom: 2px solid var(--rule-red); margin-bottom: 16px; }
+.updated { font-size: 13px; color: var(--ink-3); margin-top: 8px; }
+
+.search { position: relative; }
+.search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
+.search input { width: 100%; height: 50px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; padding: 0 14px 0 44px; box-shadow: var(--shadow); -webkit-appearance: none; appearance: none; }
+.search input:focus, .form input:focus, .form textarea:focus, .lock input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.boxes { display: grid; gap: 12px; margin: 16px 0; }
+.box { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 14px 18px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); font-size: 18px; font-weight: 600; line-height: 1.3; text-decoration: none; }
+.box:active { background: var(--accent-soft); transform: scale(0.99); }
+.chev { color: var(--ink-3); font-size: 28px; font-weight: 400; line-height: 1; flex: none; }
+.box.teaser { background: transparent; border: 1.5px dashed var(--line); box-shadow: none; color: var(--ink-3); justify-content: center; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; }
+.box.teaser:active { background: transparent; transform: none; }
+.box.result { align-items: flex-start; }
+.r-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.r-path { font-size: 13px; font-weight: 500; color: var(--ink-3); }
+.r-snip { font-size: 14px; font-weight: 400; color: var(--ink-2); }
+mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; }
+.empty { color: var(--ink-3); text-align: center; margin: 22px 0; }
+
+.bar { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
+.back { display: inline-flex; align-items: center; min-height: 44px; padding-right: 14px; font-weight: 600; color: var(--accent); text-decoration: none; }
+.icon-btn { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; color: var(--accent); }
+.crumbs { font-size: 13px; color: var(--ink-3); margin: 4px 0 0; }
+.crumbs a { color: var(--ink-3); text-decoration: none; }
+.crumbs .sep { margin: 0 6px; }
+h1 { font-size: 26px; line-height: 1.2; margin: 4px 0 14px; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--rule-red); border-radius: 14px; box-shadow: var(--shadow); padding: 14px 18px 6px; }
+.card p { margin: 6px 0 12px; }
+.steps, .lettered, .bullets { margin: 0; padding: 0; list-style: none; }
+.steps > li, .lettered > li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.steps > li:last-child, .lettered > li:last-child { border-bottom: 0; }
+.steps .n { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 15px; font-weight: 700; display: grid; place-items: center; margin-top: 1px; }
+.notes { list-style: none; margin: 8px 0 2px; padding: 8px 12px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; font-size: 16px; }
+.lettered > li { font-size: 16px; line-height: 1.45; }
+.lettered .lbl { font-weight: 700; color: var(--accent); }
+.bullets > li { padding: 8px 0 8px 18px; position: relative; border-bottom: 1px solid var(--line); }
+.bullets > li::before { content: ""; position: absolute; left: 4px; top: 18px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.source { font-size: 13px; color: var(--ink-3); padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.card p.source { margin: 4px 0 4px; }
+.soon { color: var(--ink-3); text-align: center; font-style: italic; padding: 14px 0 10px; }
+
+.send-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 50px; padding: 0 16px; border-radius: 12px; border: 1.5px solid var(--accent); background: transparent; color: var(--accent); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn:disabled { opacity: 0.6; }
+.outbox { font-size: 14px; color: var(--ink-2); background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; margin: 16px 0 0; }
+.banner { font-size: 15px; background: var(--accent-soft); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 6px 0 4px; }
+.linkish { font: inherit; font-weight: 700; color: var(--accent); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin-bottom: 14px; }
+.seg button { min-height: 42px; border: 0; border-radius: 9px; background: transparent; color: var(--ink-2); font: inherit; font-weight: 700; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.form { padding: 16px 18px 18px; }
+.form .about { font-size: 15px; color: var(--ink-2); margin: 0 0 10px; }
+.form .about b { color: var(--ink); }
+.form .hint { margin: 0 0 12px; font-weight: 600; }
+.form label { display: block; font-size: 14px; font-weight: 700; color: var(--ink-2); margin: 12px 0 6px; }
+.form textarea, .form input, .lock input { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--desk); color: var(--ink); font: inherit; font-size: 17px; padding: 12px; -webkit-appearance: none; appearance: none; }
+.form textarea { min-height: 150px; resize: vertical; }
+.fine { font-size: 13px; color: var(--ink-3); margin: 12px 0 14px; }
+.done { text-align: center; padding: 22px 18px; }
+.done h1 { margin-top: 0; }
+
+.lock { min-height: 80vh; display: grid; place-items: center; }
+.lock-card { width: 100%; background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--rule-red); border-radius: 16px; box-shadow: var(--shadow); padding: 26px 20px 22px; text-align: center; }
+.lock .sub { color: var(--ink-3); margin: 10px 0 20px; font-size: 15px; }
+.lock label { display: block; text-align: left; font-size: 14px; font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+.lock .err { color: var(--rule-red); min-height: 22px; font-size: 15px; margin: 8px 0; text-align: left; }
+.msg { text-align: center; padding-top: 30vh; color: var(--ink-2); }
+.msg b { display: block; font-size: 19px; color: var(--ink); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div id="app"><p class="msg">Loading…</p></div>
+<noscript><p class="msg">This guide needs JavaScript turned on.</p></noscript>
+<script>
+'use strict';
+const app = document.getElementById('app');
+const $ = (sel) => app.querySelector(sel);
+const LS = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+};
+const K = { key: 'kys.key', last: 'kys.last', name: 'kys.name', outbox: 'kys.outbox' };
+const te = new TextEncoder();
+const td = new TextDecoder();
+const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+const tob64 = (u8) => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s); };
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const SEARCH_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
+const REVIEW_NOTE = "Every submission is reviewed before anything is added to the guide. Don't include client names, docket numbers, or case facts.";
+
+let DATA = null;      // the opened guide
+let INDEX = [];       // search index
+let PENDING = null;   // a newer version this phone can't open yet (new passphrase)
+let started = false;
+
+/* ---------- opening the encrypted guide ---------- */
+async function deriveKey(pass, payload) {
+  const material = await crypto.subtle.importKey('raw', te.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: unb64(payload.kdf.salt), iterations: payload.kdf.iterations, hash: payload.kdf.hash },
+    material, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+}
+async function openWith(key, payload) {
+  const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(payload.cipher.iv) }, key, unb64(payload.ct));
+  return JSON.parse(td.decode(plain));
+}
+async function storedKey() {
+  const raw = LS.get(K.key);
+  if (!raw) return null;
+  try { return await crypto.subtle.importKey('raw', unb64(raw), 'AES-GCM', false, ['decrypt']); } catch (e) { return null; }
+}
+async function rememberKey(key) {
+  try { LS.set(K.key, tob64(new Uint8Array(await crypto.subtle.exportKey('raw', key)))); } catch (e) {}
+}
+async function fetchPayload() {
+  try {
+    const res = await fetch('content.enc.json', { cache: 'no-cache' });
+    if (res.ok) return await res.text();
+  } catch (e) {}
+  return LS.get(K.last);
+}
+
+async function boot() {
+  if (!window.crypto || !crypto.subtle) return message('This browser can’t open the guide.', 'Open the link in Safari or Chrome.');
+  const text = await fetchPayload();
+  if (!text) return message('Connect to the internet once to download the guide.', 'After that it works without a signal.');
+  let payload;
+  try { payload = JSON.parse(text); } catch (e) { return message('The guide didn’t download properly.', 'Reload the page with a signal.'); }
+  const key = await storedKey();
+  if (key) {
+    try { DATA = await openWith(key, payload); LS.set(K.last, text); return start(); } catch (e) {}
+    const lastText = LS.get(K.last);
+    if (lastText && lastText !== text) {
+      try { DATA = await openWith(key, JSON.parse(lastText)); PENDING = { payload, text }; return start(); } catch (e) {}
+    }
+  }
+  lock(payload, text, false);
+}
+
+function message(title, detail) {
+  app.innerHTML = `<p class="msg"><b>${esc(title)}</b>${esc(detail)}</p>`;
+}
+
+function lock(payload, text, newVersion) {
+  app.innerHTML = `
+    <main class="lock"><div class="lock-card">
+      <div class="wordmark">Know Your Shit</div>
+      <p class="sub">${newVersion ? 'The guide was updated with a new passphrase.' : 'Clinic reference guide'}</p>
+      <form id="unlock">
+        <label for="pass">Passphrase</label>
+        <input id="pass" name="password" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+        <p class="err" id="err" role="alert"></p>
+        <button class="btn primary" type="submit">Unlock</button>
+        ${newVersion ? '<p class="fine"><button type="button" class="linkish" id="keep">Keep using the last version for now</button></p>' : ''}
+      </form>
+    </div></main>`;
+  const form = $('#unlock'), input = $('#pass'), err = $('#err'), btn = form.querySelector('button[type=submit]');
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const pass = input.value.trim();
+    if (!pass) return;
+    btn.disabled = true; btn.textContent = 'Unlocking…'; err.textContent = '';
+    try {
+      const key = await deriveKey(pass, payload);
+      DATA = await openWith(key, payload);
+      await rememberKey(key);
+      LS.set(K.last, text);
+      PENDING = null;
+      start();
+    } catch (e) {
+      err.textContent = 'That passphrase didn’t work.';
+      btn.disabled = false; btn.textContent = 'Unlock';
+      input.select();
+    }
+  });
+  const keep = $('#keep');
+  if (keep) keep.addEventListener('click', () => route());
+}
+
+function start() {
+  INDEX = buildIndex(DATA);
+  if (!started) {
+    started = true;
+    window.addEventListener('hashchange', route);
+    window.addEventListener('online', flushOutbox);
+    app.addEventListener('click', (ev) => {
+      if (ev.target.closest('#getnew') && PENDING) lock(PENDING.payload, PENDING.text, true);
+    });
+  }
+  route();
+  flushOutbox();
+}
+
+/* ---------- navigation ---------- */
+function parseHash() {
+  const raw = location.hash.replace(/^#\/?/, '');
+  const qi = raw.indexOf('?');
+  const path = qi === -1 ? raw : raw.slice(0, qi);
+  const params = new URLSearchParams(qi === -1 ? '' : raw.slice(qi + 1));
+  return { segs: path.split('/').filter(Boolean).map(decodeURIComponent), params };
+}
+function resolve(segs) {
+  let nodes = DATA.children;
+  const trail = [];
+  for (const s of segs) {
+    const n = (nodes || []).find((x) => x.slug === s && !x.teaser);
+    if (!n) return null;
+    trail.push(n);
+    nodes = n.children;
+  }
+  return trail;
+}
+const hrefOf = (trail) => '#/' + trail.map((n) => n.slug).join('/');
+
+function route() {
+  if (!DATA) return;
+  const { segs, params } = parseHash();
+  window.scrollTo(0, 0);
+  if (segs[0] === 'send') return sendView(params);
+  if (!segs.length) return home(params.get('q') || '', params.has('focus'));
+  const trail = resolve(segs);
+  if (!trail) { location.replace('#/'); return; }
+  const node = trail[trail.length - 1];
+  if (node.children) menuView(trail); else pageView(trail);
+}
+
+function banner() {
+  return PENDING ? '<div class="banner">There’s a newer version of the guide with a new passphrase. <button class="linkish" id="getnew" type="button">Enter it</button></div>' : '';
+}
+function topbar(trail) {
+  const parents = trail.slice(0, -1);
+  const back = parents.length ? hrefOf(parents) : '#/';
+  const crumbs = ['<a href="#/">Home</a>'].concat(parents.map((n, i) => `<a href="${hrefOf(trail.slice(0, i + 1))}">${esc(n.title)}</a>`)).join('<span class="sep">›</span>');
+  return `<header class="bar"><a class="back" href="${back}">‹ Back</a><a class="icon-btn" href="#/?focus" aria-label="Search">${SEARCH_SVG}</a></header>
+    <nav class="crumbs" aria-label="Where you are">${crumbs}</nav>
+    <h1>${esc(trail[trail.length - 1].title)}</h1>`;
+}
+function boxes(nodes, base) {
+  return `<div class="boxes">${nodes.map((n) => n.teaser
+    ? `<div class="box teaser">${esc(n.title)}</div>`
+    : `<a class="box" href="${hrefOf([...base, n])}"><span>${esc(n.title)}</span><span class="chev" aria-hidden="true">›</span></a>`).join('')}</div>`;
+}
+function sendRow(trail) {
+  const from = encodeURIComponent(trail.map((n) => n.slug).join('/'));
+  return `<div class="send-row"><a class="btn" href="#/send?type=Feedback&from=${from}">Feedback</a><a class="btn" href="#/send?type=Contribution&from=${from}">Contribute</a></div>`;
+}
+function fmtDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function home(q, focus) {
+  app.innerHTML = `${banner()}
+    <header class="home-head"><div class="wordmark">Know Your Shit</div><div class="updated">Updated ${esc(fmtDate(DATA.updated))}</div></header>
+    <div class="search">${SEARCH_SVG}<input id="q" type="search" placeholder="Search the guide" aria-label="Search the guide" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search"></div>
+    <div id="results"></div>
+    <div id="menu">${boxes(DATA.children, [])}</div>
+    ${sendRow([])}
+    ${outboxNote()}`;
+  const input = $('#q');
+  input.value = q;
+  const update = () => {
+    const v = input.value.trim();
+    $('#menu').hidden = !!v;
+    $('#results').innerHTML = v ? results(v) : '';
+    history.replaceState(null, '', v ? '#/?q=' + encodeURIComponent(v) : '#/');
+  };
+  input.addEventListener('input', update);
+  input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') input.blur(); });
+  if (q) update();
+  if (focus) input.focus();
+}
+function menuView(trail) {
+  app.innerHTML = `${banner()}${topbar(trail)}${boxes(trail[trail.length - 1].children, trail)}${sendRow(trail)}`;
+}
+function pageView(trail) {
+  const node = trail[trail.length - 1];
+  const body = node.blocks.length ? node.blocks.map(blockHTML).join('') : '<p class="soon">Coming soon</p>';
+  app.innerHTML = `${banner()}${topbar(trail)}<article class="card">${body}</article>${sendRow(trail)}`;
+}
+function blockHTML(b) {
+  if (b.type === 'ol') {
+    return `<ol class="steps">${b.items.map((i) => `<li value="${i.n}"><span class="n" aria-hidden="true">${i.n}</span><div>${esc(i.text)}${i.notes.length ? `<ul class="notes">${i.notes.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}</div></li>`).join('')}</ol>`;
+  }
+  if (b.type === 'lettered') return `<ol class="lettered">${b.items.map((i) => `<li><span class="lbl">${esc(i.label)}</span><div>${esc(i.text)}</div></li>`).join('')}</ol>`;
+  if (b.type === 'ul') return `<ul class="bullets">${b.items.map((i) => `<li>${esc(i.text)}</li>`).join('')}</ul>`;
+  if (b.type === 'source') return `<p class="source">${esc(b.text)}</p>`;
+  return `<p>${esc(b.text)}</p>`;
+}
+
+/* ---------- search ---------- */
+function blockText(b) {
+  if (b.items) return b.items.map((i) => [i.label, i.text].concat(i.notes || []).filter(Boolean).join(' ')).join(' ');
+  return b.text || '';
+}
+function buildIndex(data) {
+  const out = [];
+  const walk = (nodes, trail) => {
+    for (const n of nodes) {
+      if (n.teaser) continue;
+      const t = trail.concat(n);
+      const text = (n.blocks || []).map(blockText).join(' ');
+      out.push({ trail: t, title: n.title, path: trail.map((x) => x.title).join(' › '), text, hay: (n.title + ' ' + text).toLowerCase() });
+      if (n.children) walk(n.children, t);
+    }
+  };
+  walk(data.children, []);
+  return out;
+}
+function highlight(text, terms) {
+  const re = new RegExp(terms.map((t) => escRe(esc(t))).join('|'), 'gi');
+  return esc(text).replace(re, (m) => `<mark>${m}</mark>`);
+}
+function snippet(text, terms) {
+  const low = text.toLowerCase();
+  const at = Math.min(...terms.map((t) => low.indexOf(t)).filter((i) => i >= 0));
+  if (!isFinite(at)) return '';
+  const from = Math.max(0, at - 40), to = Math.min(text.length, at + 80);
+  return `<span class="r-snip">${from ? '… ' : ''}${highlight(text.slice(from, to), terms)}${to < text.length ? ' …' : ''}</span>`;
+}
+function results(q) {
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const titleHit = (e) => terms.every((t) => e.title.toLowerCase().includes(t)) ? 1 : 0;
+  const hits = INDEX.filter((e) => terms.every((t) => e.hay.includes(t))).sort((a, b) => titleHit(b) - titleHit(a));
+  if (!hits.length) return `<p class="empty">Nothing matches “${esc(q)}”.</p>`;
+  return `<div class="boxes">${hits.map((e) => `<a class="box result" href="${hrefOf(e.trail)}"><span class="r-main"><span>${highlight(e.title, terms)}</span>${e.path ? `<span class="r-path">${esc(e.path)}</span>` : ''}${snippet(e.text, terms)}</span><span class="chev" aria-hidden="true">›</span></a>`).join('')}</div>`;
+}
+
+/* ---------- feedback and contributions ---------- */
+function readOutbox() { try { return JSON.parse(LS.get(K.outbox) || '[]'); } catch (e) { return []; } }
+function writeOutbox(list) { LS.set(K.outbox, JSON.stringify(list)); }
+function outboxNote() {
+  const n = readOutbox().length;
+  return `<p id="outbox" class="outbox"${n ? '' : ' hidden'}>${n} note${n === 1 ? '' : 's'} waiting to send. ${n === 1 ? 'It goes' : 'They go'} out the next time you open the guide with a signal.</p>`;
+}
+async function post(entry) {
+  const f = DATA.form;
+  const body = new URLSearchParams();
+  body.set(f.fields.type, entry.type);
+  body.set(f.fields.page, entry.page);
+  body.set(f.fields.note, entry.note);
+  body.set(f.fields.name, entry.name);
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 15000);
+  try {
+    await fetch(f.action, { method: 'POST', mode: 'no-cors', body, signal: ctl.signal });
+    return true;
+  } catch (e) {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+let flushing = false;
+async function flushOutbox() {
+  if (flushing || !DATA || navigator.onLine === false) return;
+  const queued = readOutbox();
+  if (!queued.length) return;
+  flushing = true;
+  const sent = new Set();
+  for (const e of queued) if (await post(e)) sent.add(e.id);
+  writeOutbox(readOutbox().filter((e) => !sent.has(e.id)));
+  flushing = false;
+  const note = document.getElementById('outbox');
+  if (note) note.outerHTML = outboxNote();
+}
+
+function sendView(params) {
+  let type = params.get('type') === 'Contribution' ? 'Contribution' : 'Feedback';
+  const from = params.get('from') || '';
+  const trail = (from && resolve(from.split('/'))) || [];
+  const about = trail.length ? trail.map((n) => n.title).join(' › ') : 'Home (general)';
+  const back = trail.length ? hrefOf(trail) : '#/';
+  const HINT = { Feedback: 'What doesn’t work, or what could work better?', Contribution: 'What should be added?' };
+  app.innerHTML = `
+    <header class="bar"><a class="back" href="${back}">‹ Back</a></header>
+    <h1 id="ftitle"></h1>
+    <div class="seg"><button type="button" data-type="Feedback">Feedback</button><button type="button" data-type="Contribution">Contribute</button></div>
+    <form id="send" class="card form">
+      <p class="about">About: <b>${esc(about)}</b></p>
+      <p class="hint" id="hint"></p>
+      <label for="note">Your note</label>
+      <textarea id="note" required></textarea>
+      <label for="name">Your name</label>
+      <input id="name" autocomplete="name" autocapitalize="words" required>
+      <p class="fine">${esc(REVIEW_NOTE)}</p>
+      <button class="btn primary" type="submit">Send</button>
+    </form>`;
+  $('#name').value = LS.get(K.name) || '';
+  const setType = (t) => {
+    type = t;
+    $('#ftitle').textContent = t === 'Feedback' ? 'Feedback' : 'Contribute';
+    $('#hint').textContent = HINT[t];
+    app.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.type === t)));
+    history.replaceState(null, '', `#/send?type=${t}&from=${encodeURIComponent(from)}`);
+  };
+  app.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => setType(b.dataset.type)));
+  setType(type);
+  const form = $('#send'), btn = form.querySelector('button[type=submit]');
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const note = $('#note').value.trim(), name = $('#name').value.trim();
+    if (!note || !name) return;
+    LS.set(K.name, name);
+    const entry = { id: Date.now() + '-' + Math.random().toString(36).slice(2, 8), type, page: about, note, name };
+    btn.disabled = true; btn.textContent = 'Sending…';
+    const ok = navigator.onLine !== false && await post(entry);
+    if (!ok) writeOutbox(readOutbox().concat(entry));
+    app.innerHTML = `
+      <header class="bar"><a class="back" href="${back}">‹ Back</a></header>
+      <div class="card done">
+        <h1>${ok ? 'Sent' : 'Saved on this phone'}</h1>
+        <p>${ok ? 'Every submission is reviewed before anything is added to the guide.' : 'It will send the next time you open the guide with a signal.'}</p>
+        <a class="btn primary" href="${back}">Done</a>
+      </div>`;
+  });
+}
+
+/* ---------- start ---------- */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+boot();
+</script>
+</body>
+</html>
